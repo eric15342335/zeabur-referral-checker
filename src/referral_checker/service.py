@@ -55,7 +55,8 @@ async def run_validation(
 
     results: list[ReferralResult] = []
     for result in ordered:
-        assert result is not None
+        if result is None:
+            raise RuntimeError("Validation task completed without a result")
         results.append(result)
     summary = RunSummary.from_results(
         results, elapsed_ms=(time.perf_counter() - started) * 1000

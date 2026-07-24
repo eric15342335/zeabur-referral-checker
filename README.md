@@ -1,8 +1,11 @@
 # Zeabur Referral Checker
 
-Asynchronous referral-code validation through Zeabur's GraphQL endpoint. The
-project provides a Python API, a Rich CLI, a Textual terminal interface, and a
-NiceGUI browser/native interface.
+Asynchronous referral-code validation through [Zeabur](https://zeabur.com/)'s
+[GraphQL](https://graphql.org/) endpoint. The project provides a
+[Python](https://www.python.org/) API, a
+[Rich](https://github.com/Textualize/rich) CLI, a
+[Textual](https://github.com/Textualize/textual) terminal interface, and a
+[NiceGUI](https://nicegui.io/documentation/) browser/native interface.
 
 Use it only for referral codes and accounts you are authorized to test. Keep
 concurrency and request rates within the service's terms.
@@ -13,7 +16,7 @@ concurrency and request rates within the service's terms.
 
 ## Requirements
 
-- Python 3.12 or newer
+- [Python](https://www.python.org/) 3.12 or newer
 - [Astral uv](https://docs.astral.sh/uv/)
 
 ## Install
@@ -142,10 +145,19 @@ Run tests only:
 uv run python scripts/quality.py test
 ```
 
-The complete gate checks Ruff, isort, Pylint, mypy, Pyright, Bandit, pyscn,
-pytest, dependency vulnerabilities, and package builds. GitHub Actions runs the
-full gate on Python 3.12 and compatibility tests on Python 3.13, Python 3.14,
-Windows, and macOS.
+The complete gate checks [Ruff](https://docs.astral.sh/ruff/),
+[isort](https://pycqa.github.io/isort/),
+[Pylint](https://pylint.readthedocs.io/en/latest/),
+[mypy](https://mypy.readthedocs.io/en/stable/),
+[Pyright](https://microsoft.github.io/pyright/),
+[Bandit](https://bandit.readthedocs.io/en/latest/),
+[pyscn](https://ludo-technologies.github.io/pyscn/), and
+[pytest](https://docs.pytest.org/en/stable/), plus dependency-vulnerability
+checks with [pip-audit](https://github.com/pypa/pip-audit) and package builds
+with [uv build](https://docs.astral.sh/uv/reference/cli/#uv-build).
+[GitHub Actions](https://docs.github.com/actions) runs the full gate on
+[Python](https://www.python.org/) 3.12 and compatibility tests on Python 3.13,
+Python 3.14, Windows, and macOS.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md) before
 submitting changes or reporting a vulnerability.
