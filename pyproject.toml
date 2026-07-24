@@ -1,0 +1,96 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "zeabur-referral-checker"
+version = "0.1.0"
+description = "Asynchronous GraphQL referral-code validator for Zeabur"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Typing :: Typed",
+]
+dependencies = [
+  "aiolimiter",
+  "gql[httpx]",
+  "loguru",
+  "nicegui",
+  "orjson",
+  "pydantic",
+  "pydantic-settings",
+  "rich",
+  "tenacity",
+  "textual",
+  "typer",
+]
+
+[project.scripts]
+refcheck = "referral_checker.cli:app"
+
+[dependency-groups]
+dev = [
+  "bandit",
+  "isort",
+  "mypy",
+  "pip-audit",
+  "pre-commit",
+  "pylint",
+  "pyright",
+  "pyscn",
+  "pytest",
+  "pytest-asyncio",
+  "pytest-cov",
+  "ruff",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/referral_checker"]
+artifacts = ["src/referral_checker/graphql/*.graphql", "src/referral_checker/py.typed"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src",
+  "tests",
+  "scripts",
+  ".env.example",
+  "CONTRIBUTING.md",
+  "LICENSE",
+  "README.md",
+  "SECURITY.md",
+  "pyproject.toml",
+]
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers -ra --cov=referral_checker --cov-report=term-missing"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+
+[tool.ruff.lint]
+extend-select = ["B", "UP"]
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+
+[tool.pylint.main]
+py-version = "3.12"
+source-roots = ["src"]
+recursive = true
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"

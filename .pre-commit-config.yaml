@@ -1,0 +1,8 @@
+repos:
+  - repo: local
+    hooks:
+      - id: format
+        name: format
+        entry: uv run python scripts/quality.py format
+        language: system
+        pass_filenames: false

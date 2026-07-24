@@ -1,0 +1,8 @@
+mutation ValidateReferralCode($code: String!, $orderType: String!) {
+  validateReferralCode(code: $code, orderType: $orderType) {
+    valid
+    discountPercent
+    reason
+    __typename
+  }
+}

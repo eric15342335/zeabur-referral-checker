@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }} / ${{ matrix.task }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.12"
+            task: check
+          - os: ubuntu-latest
+            python: "3.13"
+            task: test
+          - os: ubuntu-latest
+            python: "3.14"
+            task: test
+          - os: windows-latest
+            python: "3.12"
+            task: test
+          - os: macos-latest
+            python: "3.12"
+            task: test
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --all-groups
+      - run: uv run python scripts/quality.py ${{ matrix.task }}
