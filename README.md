@@ -7,6 +7,10 @@ NiceGUI browser/native interface.
 Use it only for referral codes and accounts you are authorized to test. Keep
 concurrency and request rates within the service's terms.
 
+## Screenshots
+
+![Graphical interface](./refcheck-gui.png)
+
 ## Requirements
 
 - Python 3.12 or newer

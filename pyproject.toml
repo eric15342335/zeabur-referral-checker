@@ -91,6 +91,9 @@ py-version = "3.12"
 source-roots = ["src"]
 recursive = true
 
+[tool.pylint.typecheck]
+generated-members = ["orjson.*"]
+
 [tool.pyright]
 pythonVersion = "3.12"
 typeCheckingMode = "standard"

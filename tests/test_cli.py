@@ -24,6 +24,8 @@ def summary(status: Status) -> RunSummary:
 def test_check_exit_contract(
     monkeypatch: pytest.MonkeyPatch, status: Status, expected_exit: int
 ) -> None:
+    monkeypatch.setenv("REFCHECK_COOKIE", "test-cookie")
+
     async def fake_validate(
         codes: list[str],
         settings: Settings | None,

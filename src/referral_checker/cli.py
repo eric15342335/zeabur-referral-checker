@@ -5,7 +5,7 @@ import sys
 from collections.abc import Awaitable, Callable
 from importlib import import_module
 from pathlib import Path
-from typing import Annotated, cast
+from typing import Annotated, Protocol, cast
 
 import typer
 from loguru import logger
@@ -24,7 +24,36 @@ type ValidationFunction = Callable[
     [list[str], Settings | None, ProgressCallback | None], Awaitable[RunSummary]
 ]
 type GuiFunction = Callable[[bool, str, int], None]
-type TuiFactory = Callable[[list[str]], object]
+
+
+class TuiApplication(Protocol):  # pylint: disable=too-few-public-methods
+    """The portion of a Textual application used by the CLI."""
+
+    def run(self) -> object:
+        """Start the application."""
+        ...  # pylint: disable=unnecessary-ellipsis
+
+
+type TuiFactory = Callable[[list[str]], TuiApplication]
+
+
+class ApiModule(Protocol):  # pylint: disable=too-few-public-methods
+    """API module attributes used by the CLI."""
+
+    validate_referral_codes: ValidationFunction
+
+
+class TuiModule(Protocol):  # pylint: disable=too-few-public-methods
+    """TUI module attributes used by the CLI."""
+
+    ReferralTui: TuiFactory
+
+
+class GuiModule(Protocol):  # pylint: disable=too-few-public-methods
+    """GUI module attributes used by the CLI."""
+
+    run_gui: GuiFunction
+
 
 app = typer.Typer(
     add_completion=True,
@@ -41,27 +70,21 @@ async def validate_referral_codes(
     on_progress: ProgressCallback | None = None,
 ) -> RunSummary:
     """Load and run the GraphQL validation workflow."""
-    function = cast(
-        ValidationFunction,
-        getattr(import_module("referral_checker.api"), "validate_referral_codes"),
-    )
-    return await function(codes, settings, on_progress)
+    # Defer importing the API module until validation is requested.
+    module = cast(ApiModule, import_module("referral_checker.api"))
+    return await module.validate_referral_codes(codes, settings, on_progress)
 
 
 def _run_tui(codes: list[str]) -> None:
-    factory = cast(
-        TuiFactory, getattr(import_module("referral_checker.tui"), "ReferralTui")
-    )
-    application = factory(codes)
-    run = cast(Callable[[], object], getattr(application, "run"))
-    run()
+    # Defer importing the optional Textual dependency until requested.
+    module = cast(TuiModule, import_module("referral_checker.tui"))
+    module.ReferralTui(codes).run()
 
 
 def _run_gui(native: bool, host: str, port: int) -> None:
-    function = cast(
-        GuiFunction, getattr(import_module("referral_checker.gui"), "run_gui")
-    )
-    function(native, host, port)
+    # Defer importing the optional NiceGUI dependency until requested.
+    module = cast(GuiModule, import_module("referral_checker.gui"))
+    module.run_gui(native, host, port)
 
 
 def _configure_logging(verbose: bool) -> None:

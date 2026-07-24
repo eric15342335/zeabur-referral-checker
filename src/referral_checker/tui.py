@@ -1,8 +1,11 @@
 """Textual terminal interface."""
 
+from typing import ClassVar
+
 from pydantic import ValidationError
 from textual import work
 from textual.app import App, ComposeResult
+from textual.binding import BindingType
 from textual.containers import Horizontal, Vertical
 from textual.widgets import (
     Button,
@@ -30,7 +33,10 @@ class ReferralTui(App[None]):
     #status { height: 3; padding: 1; }
     DataTable { height: 1fr; }
     """
-    BINDINGS = [("q", "quit", "Quit"), ("r", "run_checks", "Run")]
+    BINDINGS: ClassVar[list[BindingType]] = [
+        ("q", "quit", "Quit"),
+        ("r", "run_checks", "Run"),
+    ]
 
     def __init__(self, initial_codes: list[str] | None = None) -> None:
         super().__init__()

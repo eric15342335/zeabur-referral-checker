@@ -29,7 +29,7 @@ class ReferralResult(BaseModel):
     attempts: int = Field(default=1, ge=1)
     checked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def valid(self) -> bool:
         """Return whether the code is valid."""
@@ -45,25 +45,23 @@ class RunSummary(BaseModel):
     elapsed_ms: float = Field(ge=0)
 
     @classmethod
-    def from_results(
-        cls, results: Sequence[ReferralResult], elapsed_ms: float
-    ) -> Self:
+    def from_results(cls, results: Sequence[ReferralResult], elapsed_ms: float) -> Self:
         """Create a summary while preserving result order."""
         return cls(results=tuple(results), elapsed_ms=elapsed_ms)
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def valid_count(self) -> int:
         """Return the number of valid codes."""
         return sum(result.status is Status.VALID for result in self.results)
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def invalid_count(self) -> int:
         """Return the number of invalid codes."""
         return sum(result.status is Status.INVALID for result in self.results)
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def error_count(self) -> int:
         """Return the number of failed checks."""

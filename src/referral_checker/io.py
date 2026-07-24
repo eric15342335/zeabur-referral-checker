@@ -3,14 +3,14 @@
 import ast
 import csv
 from pathlib import Path
-from typing import Any
+from typing import cast
 
 import orjson
 
 from referral_checker.models import RunSummary
 from referral_checker.service import normalize_codes
 
-_CSV_FIELDS = (
+_CSV_FIELDS: tuple[str, ...] = (
     "code",
     "status",
     "discount_percent",
@@ -25,14 +25,16 @@ _CSV_FIELDS = (
 def parse_codes(raw: str) -> list[str]:
     """Parse a Python or JSON list, comma-separated text, or line-separated text."""
     try:
-        value: Any = ast.literal_eval(raw)
+        value: object = ast.literal_eval(raw)
     except (SyntaxError, ValueError):
         value = raw.replace(",", "\n").splitlines()
     if not isinstance(value, list):
-        raise ValueError("input must be a Python list or delimited text")
+        raise ValueError(  # noqa: TRY004 - raw is a str with an unsupported representation
+            "input must be a Python list or delimited text"
+        )
     if not all(isinstance(item, str) for item in value):
         raise ValueError("every referral code must be a string")
-    return normalize_codes(value)
+    return normalize_codes(cast(list[str], value))
 
 
 def export_summary(summary: RunSummary, destination: Path) -> Path:
@@ -45,7 +47,7 @@ def export_summary(summary: RunSummary, destination: Path) -> Path:
     elif destination.suffix.lower() == ".csv":
         rows = [result.model_dump(mode="json") for result in summary.results]
         with destination.open("w", newline="", encoding="utf-8") as handle:
-            writer = csv.DictWriter(handle, fieldnames=_CSV_FIELDS)
+            writer = csv.DictWriter(handle, fieldnames=list(_CSV_FIELDS))
             writer.writeheader()
             writer.writerows(rows)
     else:

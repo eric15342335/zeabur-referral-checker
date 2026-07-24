@@ -21,7 +21,7 @@ def test_parse_codes(raw: str, expected: list[str]) -> None:
     assert parse_codes(raw) == expected
 
 
-@pytest.mark.parametrize("raw", ["42", "('A', 'B')", "['A', 2]"])
+@pytest.mark.parametrize("raw", ["42", '"ABC"', "('A', 'B')", "['A', 2]"])
 def test_parse_codes_rejects_invalid_structures(raw: str) -> None:
     with pytest.raises(ValueError):
         parse_codes(raw)
