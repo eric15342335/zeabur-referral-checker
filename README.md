@@ -208,7 +208,7 @@ This was the second prompt:
 Now, take the perspective of an open-source project maintainer. Please remove all of the following from the codebase and perform code-line cleanup and removal:
 
 * Commentary
-* Legacy Python support, e.g., future annotations. We support only Python 3.12 or above.
+* Legacy Python support. We support only Python 3.12 or above.
 * Unnecessary, generic, and overly easy test files
 * Empty directories
 * I don't think we need to manually configure that many linting rules in pyproject.toml. Remove most of the default, unnecessary, and harmful ones.
