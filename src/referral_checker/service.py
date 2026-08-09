@@ -23,7 +23,8 @@ class Validator(Protocol):  # pylint: disable=too-few-public-methods
 
 def normalize_codes(codes: Iterable[str]) -> list[str]:
     """Trim, remove blanks, and deduplicate codes without reordering them."""
-    return list(dict.fromkeys(code for raw in codes if (code := raw.strip())))
+    stripped_codes = (code.strip() for code in codes)
+    return list(dict.fromkeys(code for code in stripped_codes if code))
 
 
 async def run_validation(
@@ -36,28 +37,25 @@ async def run_validation(
     started = time.perf_counter()
     semaphore = asyncio.Semaphore(concurrency)
     completed = 0
-    ordered: list[ReferralResult | None] = [None] * len(codes)
 
-    async def _validate_one(index: int, code: str) -> None:
+    async def _validate_one(code: str) -> ReferralResult:
         nonlocal completed
         async with semaphore:
             result = await validator.validate(code)
-        ordered[index] = result
         completed += 1
         if on_progress is not None:
             outcome = on_progress(result, completed, len(codes))
             if inspect.isawaitable(outcome):
                 await outcome
+        return result
 
     async with asyncio.TaskGroup() as group:
-        for index, code in enumerate(codes):
-            group.create_task(_validate_one(index, code), name=f"referral:{code}")
+        tasks = [
+            group.create_task(_validate_one(code), name=f"referral:{code}")
+            for code in codes
+        ]
 
-    results: list[ReferralResult] = []
-    for result in ordered:
-        if result is None:
-            raise RuntimeError("Validation task completed without a result")
-        results.append(result)
+    results = [task.result() for task in tasks]
     summary = RunSummary.from_results(
         results, elapsed_ms=(time.perf_counter() - started) * 1000
     )

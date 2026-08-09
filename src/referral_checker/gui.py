@@ -37,7 +37,7 @@ def _build_gui() -> None:
         progress.value = 0
         button.disable()
 
-        async def _update(result: ReferralResult, current: int, total: int) -> None:
+        def _update(result: ReferralResult, current: int, total: int) -> None:
             table.rows.append(
                 {
                     "code": result.code,

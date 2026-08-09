@@ -90,7 +90,7 @@ class ReferralTui(App[None]):
         progress = self.query_one("#progress", ProgressBar)
         progress.update(total=len(codes), progress=0)
 
-        async def _update(result: ReferralResult, current: int, total: int) -> None:
+        def _update(result: ReferralResult, current: int, total: int) -> None:
             table.add_row(
                 result.code,
                 result.status.value,
