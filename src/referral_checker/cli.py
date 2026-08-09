@@ -1,11 +1,12 @@
 """Command-line interface."""
 
+# Lazy UI/API imports are intentional to keep CLI startup lightweight.
+# pylint: disable=import-outside-toplevel
+
 import asyncio
 import sys
-from collections.abc import Awaitable, Callable
-from importlib import import_module
 from pathlib import Path
-from typing import Annotated, Protocol, cast
+from typing import Annotated
 
 import typer
 from loguru import logger
@@ -19,41 +20,6 @@ from referral_checker.models import RunSummary
 from referral_checker.presentation import print_summary
 from referral_checker.service import ProgressCallback
 from referral_checker.settings import Settings, load_settings
-
-type ValidationFunction = Callable[
-    [list[str], Settings | None, ProgressCallback | None], Awaitable[RunSummary]
-]
-type GuiFunction = Callable[[bool, str, int], None]
-
-
-class TuiApplication(Protocol):  # pylint: disable=too-few-public-methods
-    """The portion of a Textual application used by the CLI."""
-
-    def run(self) -> object:
-        """Start the application."""
-        ...  # pylint: disable=unnecessary-ellipsis
-
-
-type TuiFactory = Callable[[list[str]], TuiApplication]
-
-
-class ApiModule(Protocol):  # pylint: disable=too-few-public-methods
-    """API module attributes used by the CLI."""
-
-    validate_referral_codes: ValidationFunction
-
-
-class TuiModule(Protocol):  # pylint: disable=too-few-public-methods
-    """TUI module attributes used by the CLI."""
-
-    ReferralTui: TuiFactory
-
-
-class GuiModule(Protocol):  # pylint: disable=too-few-public-methods
-    """GUI module attributes used by the CLI."""
-
-    run_gui: GuiFunction
-
 
 app = typer.Typer(
     add_completion=True,
@@ -70,21 +36,21 @@ async def validate_referral_codes(
     on_progress: ProgressCallback | None = None,
 ) -> RunSummary:
     """Load and run the GraphQL validation workflow."""
-    # Defer importing the API module until validation is requested.
-    module = cast(ApiModule, import_module("referral_checker.api"))
-    return await module.validate_referral_codes(codes, settings, on_progress)
+    from referral_checker.api import validate_referral_codes as validate_codes
+
+    return await validate_codes(codes, settings, on_progress)
 
 
 def _run_tui(codes: list[str]) -> None:
-    # Defer importing the optional Textual dependency until requested.
-    module = cast(TuiModule, import_module("referral_checker.tui"))
-    module.ReferralTui(codes).run()
+    from referral_checker.tui import ReferralTui
+
+    ReferralTui(codes).run()
 
 
 def _run_gui(native: bool, host: str, port: int) -> None:
-    # Defer importing the optional NiceGUI dependency until requested.
-    module = cast(GuiModule, import_module("referral_checker.gui"))
-    module.run_gui(native, host, port)
+    from referral_checker.gui import run_gui
+
+    run_gui(native, host, port)
 
 
 def _configure_logging(verbose: bool) -> None:
@@ -130,7 +96,7 @@ def check(
         with Progress(console=console) as progress:
             task = progress.add_task("Validating", total=len(parsed))
 
-            def _update(*_: object) -> None:
+            def _update(_result: object, _current: int, _total: int) -> None:
                 progress.advance(task)
 
             summary = await validate_referral_codes(parsed, settings, _update)

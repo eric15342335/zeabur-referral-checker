@@ -180,4 +180,4 @@ class GraphQLReferralValidator:
                         "Authentication failed; refresh REFCHECK_COOKIE and try again."
                     ) from error
                 raise
-        return cast(Mapping[str, Any], response)
+        return response

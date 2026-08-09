@@ -1,7 +1,6 @@
 """Environment-backed runtime settings."""
 
-from collections.abc import Callable
-from typing import cast
+from typing import Any, cast
 
 from pydantic import AnyHttpUrl, Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -35,4 +34,4 @@ class Settings(BaseSettings):
 
 def load_settings(**overrides: object) -> Settings:
     """Load settings from the environment and optional runtime overrides."""
-    return cast(Callable[..., Settings], Settings)(**overrides)
+    return Settings(**cast(dict[str, Any], overrides))
